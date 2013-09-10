@@ -28,7 +28,7 @@ namespace SherpaService
         string m_ArchiveSecret;
         string m_ArchiveCollection;
         string m_ArchivePrefix;
-        string m_ArchiveLicenseURL;
+        string m_DefaultArchiveLicenseUrl;
         string m_ContentPaths;
 
         public Service1()
@@ -60,7 +60,7 @@ namespace SherpaService
                 m_ArchiveSecret = ConfigurationManager.AppSettings["ArchiveSecret"].ToString();
                 m_ArchiveCollection = ConfigurationManager.AppSettings["ArchiveCollection"].ToString();
                 m_ArchivePrefix = ConfigurationManager.AppSettings["ArchivePrefix"].ToString();
-                m_ArchiveLicenseURL = ConfigurationManager.AppSettings["ArchiveLicenseURL"].ToString();
+                m_DefaultArchiveLicenseUrl = ConfigurationManager.AppSettings["ArchiveLicenseURL"].ToString();
                 m_ContentPaths = ConfigurationManager.AppSettings["ContentPath"].ToString();
             }
             catch(Exception ex)
@@ -118,17 +118,24 @@ namespace SherpaService
                             showToUpload = show;
                             break;
                         }
+                        else
+                        {
+                            LogHelper.Logger.Debug(String.Format("Could not find file for show: {0} - {1}", show.ShowID, show.Title));
+                        }
                     }
 
                     if (showToUpload != null)
                     {
+                        var archiveURL = showToUpload.CustomFields.FirstOrDefault(f => f.Name == "Archive-CC-License");
                         LogHelper.Logger.Debug(String.Format("Beginning Upload of {0}", pathToFile));
                         var uploader = new SherpaArchiveUploader()
                             {
                                 FilePath = pathToFile,
                                 Title = showToUpload.Title,
                                 Description = showToUpload.Comments,
-                                LicenseURL = m_ArchiveLicenseURL,
+                                LicenseURL = (archiveURL != null  && String.IsNullOrWhiteSpace(archiveURL.Value) == false) ? 
+                                             archiveURL.Value : 
+                                             m_DefaultArchiveLicenseUrl,
                                 ArchiveBucket = m_ArchiveCollection,
                                 IdentityToken = m_ArchivePrefix,
                                 ArchiveAccessKey = m_ArchiveKey,
