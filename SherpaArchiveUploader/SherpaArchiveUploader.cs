@@ -82,6 +82,7 @@ namespace Sherpa.Uploaders
         {
 
             var worker = sender as BackgroundWorker;
+            var percent = 0;
 
             #region Archive Sample
             /****
@@ -148,8 +149,13 @@ namespace Sherpa.Uploaders
                     strm.Write(buff, 0, contentLen);
                     contentLen = fs.Read(buff, 0, buffLength);
                     totalBytesUploaded += contentLen;
-                    var percent = (int)(((float)totalBytesUploaded / (float)fileInfo.Length) * 100);
+                    var newPercent = (int)(((float)totalBytesUploaded / (float)fileInfo.Length) * 100);
 
+                    if (percent != newPercent)
+                    {
+                        percent = newPercent;
+                        Sherpa.LogHelper.LogHelper.Logger.Debug(String.Format("{0}% of {1} uploaded.", percent, FilePath));
+                    }
                     // Only report progress if we have a background woker
                     // We won't have a background worker if this is being called syncronously
                     if (worker != null)
@@ -158,6 +164,7 @@ namespace Sherpa.Uploaders
             }
             finally
             {
+                LogHelper.LogHelper.Logger.Debug(String.Format("Closing streams for file: {0}", FilePath));
                 // Close the file stream and the Request Stream
                 strm.Close();
                 fs.Close();

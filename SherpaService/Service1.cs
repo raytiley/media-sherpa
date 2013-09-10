@@ -11,6 +11,7 @@ using Sherpa.Classes;
 using System.Configuration;
 using Sherpa.Uploaders;
 using SherpaService.CablecastWS;
+using Sherpa.LogHelper;
 
 namespace SherpaService
 {

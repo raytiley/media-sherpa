@@ -4,6 +4,7 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using Sherpa.Classes;
+using Sherpa.LogHelper;
 
 namespace SherpaService
 {
